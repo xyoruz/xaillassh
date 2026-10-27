@@ -6,9 +6,11 @@
 
     <application
         android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="SSH OVPN"
         android:theme="@style/Theme.SSHOVPN"
         android:usesCleartextTraffic="true">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -17,5 +19,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Service untuk Izin VPN -->
+        <service
+            android:name=".OvpnService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.VpnService"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>

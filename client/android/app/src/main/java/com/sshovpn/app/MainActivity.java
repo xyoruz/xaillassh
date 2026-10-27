@@ -1,22 +1,41 @@
 package com.sshovpn.app;
 
+import android.content.Intent;
+import android.net.VpnService;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.*;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity implements SshManager.SshCallback {
 
     private LinearLayout formSsh, formOvpn, formConfig;
     private TextView tabSsh, tabOvpn, tabConfig, tvStatus, tvLog;
-    private Button btnConnect;
-    private EditText etHost, etPort, etUser, etPass, etSni, etPayload;
+    private Button btnConnect, btnParse;
+    private EditText etQuickConnect, etHost, etPort, etUser, etPass, etSni, etPayload;
     
     private SshManager sshManager;
     private boolean isConnecting = false;
     private Handler uiHandler = new Handler(Looper.getMainLooper());
+
+    // Launcher untuk meminta izin VPN
+    private final ActivityResultLauncher<Intent> vpnPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    appendLog("Izin VPN diberikan. Memulai koneksi...");
+                    proceedConnection();
+                } else {
+                    appendLog("Izin VPN DITOLAK. Koneksi dibatalkan.");
+                    Toast.makeText(this, "Aplikasi butuh izin VPN untuk terhubung!", Toast.LENGTH_LONG).show();
+                    resetUiOnDisconnect();
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +51,18 @@ public class MainActivity extends AppCompatActivity implements SshManager.SshCal
                 appendLog("Disconnecting...");
                 sshManager.disconnect(this);
             } else {
-                startConnection();
+                startConnectionProcess();
             }
+        });
+
+        // Logika Tombol Parse String "host:port@user:pass"
+        btnParse.setOnClickListener(v -> {
+            String quickText = etQuickConnect.getText().toString().trim();
+            if (quickText.isEmpty()) {
+                Toast.makeText(this, "Isi format quick connect dulu!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            parseQuickConnect(quickText);
         });
     }
 
@@ -47,13 +76,43 @@ public class MainActivity extends AppCompatActivity implements SshManager.SshCal
         tvStatus = findViewById(R.id.tvStatus);
         tvLog = findViewById(R.id.tvLog);
         btnConnect = findViewById(R.id.btnConnect);
+        btnParse = findViewById(R.id.btnParse);
 
+        etQuickConnect = findViewById(R.id.etQuickConnect);
         etHost = findViewById(R.id.etSshHost);
         etPort = findViewById(R.id.etSshPort);
         etUser = findViewById(R.id.etSshUser);
         etPass = findViewById(R.id.etSshPass);
         etSni = findViewById(R.id.etSni);
         etPayload = findViewById(R.id.etPayload);
+    }
+
+    private void parseQuickConnect(String input) {
+        try {
+            // Format: id3.aryus09.com:80@xailla:sihab
+            String[] parts = input.split("@");
+            String hostPort = parts[0];
+            String userPass = parts[1];
+
+            String[] hp = hostPort.split(":");
+            String host = hp[0];
+            String port = hp[1];
+
+            String[] up = userPass.split(":");
+            String user = up[0];
+            String pass = up[1];
+
+            etHost.setText(host);
+            etPort.setText(port);
+            etUser.setText(user);
+            etPass.setText(pass);
+            
+            Toast.makeText(this, "Format berhasil diurai!", Toast.LENGTH_SHORT).show();
+            appendLog("Parsed: " + host + " | " + port + " | " + user);
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Format salah! Gunakan: host:port@user:pass", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void setupTabs() {
@@ -82,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements SshManager.SshCal
         tabConfig.setBackgroundColor(index == 2 ? activeBg : noBg);
     }
 
-    private void startConnection() {
+    private void startConnectionProcess() {
         String host = etHost.getText().toString().trim();
         String portStr = etPort.getText().toString().trim();
         String user = etUser.getText().toString().trim();
@@ -92,6 +151,27 @@ public class MainActivity extends AppCompatActivity implements SshManager.SshCal
             Toast.makeText(this, "Isi semua data SSH!", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        // Cek dan Minta Izin VPN
+        Intent intent = VpnService.prepare(this);
+        if (intent != null) {
+            appendLog("Meminta izin VPN...");
+            vpnPermissionLauncher.launch(intent);
+        } else {
+            appendLog("Izin VPN sudah ada.");
+            proceedConnection();
+        }
+    }
+
+    private void proceedConnection() {
+        // Jalankan VpnService (hanya sebagai penanda izin terpasang)
+        Intent vpnIntent = new Intent(this, OvpnService.class);
+        startService(vpnIntent);
+
+        String host = etHost.getText().toString().trim();
+        String portStr = etPort.getText().toString().trim();
+        String user = etUser.getText().toString().trim();
+        String pass = etPass.getText().toString().trim();
 
         int port = 22;
         try { port = Integer.parseInt(portStr); } catch (Exception ignored) {}
@@ -114,6 +194,14 @@ public class MainActivity extends AppCompatActivity implements SshManager.SshCal
         });
     }
 
+    private void resetUiOnDisconnect() {
+        isConnecting = false;
+        tvStatus.setText("● DISCONNECTED");
+        tvStatus.setTextColor(0xFFD32F2F);
+        btnConnect.setText("CONNECT");
+        btnConnect.setBackgroundTintList(getColorStateList(android.R.color.holo_green_dark));
+    }
+
     @Override
     public void onLog(String msg) { appendLog(msg); }
 
@@ -129,13 +217,8 @@ public class MainActivity extends AppCompatActivity implements SshManager.SshCal
 
     @Override
     public void onDisconnected() {
-        uiHandler.post(() -> {
-            isConnecting = false;
-            tvStatus.setText("● DISCONNECTED");
-            tvStatus.setTextColor(0xFFD32F2F);
-            btnConnect.setText("CONNECT");
-            btnConnect.setBackgroundTintList(getColorStateList(android.R.color.holo_green_dark));
-        });
+        uiHandler.post(this::resetUiOnDisconnect);
+        stopService(new Intent(this, OvpnService.class));
     }
 
     @Override
