@@ -32,21 +32,24 @@
 
             <!-- FORM SSH -->
             <LinearLayout android:id="@+id/formSsh" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                
-                <!-- QUICK CONNECT (Satu-satunya input SSH) -->
+
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="QUICK CONNECT" android:textColor="#FF00E676" android:textSize="14sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Format: host:port@user:pass" android:textColor="#FFB0B0B0" android:textSize="12sp" android:layout_marginBottom="8dp"/>
-                
+
                 <EditText android:id="@+id/etQuickConnect" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:textColorHint="#FF808080" android:hint="id3.aryus09.com:80@xailla:sihab"/>
-                
+
                 <Button android:id="@+id/btnParse" android:layout_width="match_parent" android:layout_height="45dp" android:text="ISI OTOMATIS" android:backgroundTint="#FF1A73E8" android:layout_marginTop="8dp" android:layout_marginBottom="24dp"/>
 
-                <!-- SNI & PAYLOAD TETAP ADA -->
+                <CheckBox android:id="@+id/cbSsl" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="SSL / TLS (pakai SNI)" android:textColor="#FFFFFFFF"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="REMOTE PROXY (opsional)" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+                <EditText android:id="@+id/etProxy" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:textColorHint="#FF808080" android:singleLine="true" android:hint="host:port"/>
+
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SNI / HOST HEADER" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                <EditText android:id="@+id/etSni" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="contoh: m.facebook.com"/>
+                <EditText android:id="@+id/etSni" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:textColorHint="#FF808080" android:singleLine="true" android:hint="contoh: m.facebook.com"/>
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HTTP PAYLOAD" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                <EditText android:id="@+id/etPayload" android:layout_width="match_parent" android:layout_height="100dp" android:background="#FF2A2A2A" android:padding="12dp" android:textColor="#FFFFFFFF" android:gravity="top|start" android:inputType="textMultiLine" android:hint="GET / HTTP/1.1[crlf]Host: m.facebook.com[crlf]..."/>
+                <EditText android:id="@+id/etPayload" android:layout_width="match_parent" android:layout_height="100dp" android:background="#FF2A2A2A" android:padding="12dp" android:textColor="#FFFFFFFF" android:gravity="top|start" android:inputType="textMultiLine" android:textColorHint="#FF808080" android:hint="GET / HTTP/1.1[crlf]Host: m.facebook.com[crlf]..."/>
             </LinearLayout>
 
             <!-- FORM OVPN -->
@@ -66,7 +69,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <TextView android:id="@+id/tvLog" android:layout_width="match_parent" android:layout_height="80dp" android:background="#FF000000" android:fontFamily="monospace" android:padding="8dp" android:scrollbars="vertical" android:text="> Ready to connect..." android:textColor="#FF00E676" android:textSize="10sp" />
+    <TextView android:id="@+id/tvLog" android:layout_width="match_parent" android:layout_height="130dp" android:background="#FF000000" android:fontFamily="monospace" android:padding="8dp" android:scrollbars="vertical" android:text="> Ready to connect..." android:textColor="#FF00E676" android:textSize="10sp" />
 
     <Button android:id="@+id/btnConnect" android:layout_width="match_parent" android:layout_height="60dp" android:layout_margin="12dp" android:text="CONNECT" android:textSize="16sp" android:textStyle="bold" android:textColor="#FF000000" android:backgroundTint="#FF00C853" />
 </LinearLayout>
