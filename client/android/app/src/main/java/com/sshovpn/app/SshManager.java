@@ -69,7 +69,7 @@ public class SshManager {
 
     static {
         JSch.setLogger(new com.jcraft.jsch.Logger() {
-            @Override public boolean isEnabled(int level) { return level >= com.jcraft.jsch.Logger.INFO; }
+            @Override public boolean isEnabled(int level) { return level >= com.jcraft.jsch.Logger.ERROR; }
             @Override public void log(int level, String message) { INSTANCE.log("[ssh] " + message); }
         });
     }
@@ -134,7 +134,7 @@ public class SshManager {
                 startProxy();
                 attempt = 0;
                 setState(State.CONNECTED);
-                log("Terhubung. Proxy lokal SOCKS5/HTTP di 127.0.0.1:" + LOCAL_PORT);
+                log("● CONNECTED • proxy 127.0.0.1:" + LOCAL_PORT);
                 while (!stopRequested && session != null && session.isConnected()) {
                     Thread.sleep(1000);
                 }
@@ -157,7 +157,7 @@ public class SshManager {
     }
 
     private void openSession(Config c) throws Exception {
-        log("Memulai SSH ke " + c.host + ":" + c.port + " (user " + c.user + ")");
+        log("▶ " + c.host + ":" + c.port + " • " + c.user);
         JSch js = new JSch();
         Session s = js.getSession(c.user, c.host, c.port);
         s.setPassword(c.pass);
@@ -181,7 +181,7 @@ public class SshManager {
         s.setServerAliveCountMax(4);
         s.connect(30000);
         session = s;
-        log("Login SSH berhasil.");
+        log("✔ Login OK");
     }
 
     private void closeSession() {
@@ -223,7 +223,7 @@ public class SshManager {
         @Override public boolean promptPassword(String message) { return true; }
         @Override public boolean promptPassphrase(String message) { return false; }
         @Override public boolean promptYesNo(String message) { return true; }
-        @Override public void showMessage(String message) { INSTANCE.log("[server] " + message); }
+        @Override public void showMessage(String message) { String b = LogFormat.banner(message); if (!b.isEmpty()) INSTANCE.log(b); }
         @Override public String[] promptKeyboardInteractive(String dest, String name, String instruction,
                                                             String[] prompt, boolean[] echo) {
             String[] r = new String[prompt == null ? 0 : prompt.length];
@@ -244,7 +244,7 @@ public class SshManager {
             boolean viaProxy = !c.proxyHost.isEmpty() && c.proxyPort > 0;
             String th = viaProxy ? c.proxyHost : host;
             int tp = viaProxy ? c.proxyPort : port;
-            log("TCP connect " + th + ":" + tp + (viaProxy ? " (remote proxy)" : ""));
+            // tcp connect
             Socket sock = new Socket();
             sock.connect(new InetSocketAddress(th, tp), 15000);
             sock.setTcpNoDelay(true);
@@ -252,7 +252,7 @@ public class SshManager {
 
             if (c.ssl) {
                 String sni = c.sni.trim().isEmpty() ? host : c.sni.trim();
-                log("TLS handshake, SNI = " + sni);
+                log("✔ TLS • SNI " + sni);
                 try {
                     SSLContext ctx = SSLContext.getInstance("TLS");
                     ctx.init(null, new TrustManager[]{ new X509TrustManager() {
@@ -334,7 +334,7 @@ public class SshManager {
                 try { Thread.sleep(250); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); throw new IOException("Dibatalkan"); }
             }
         }
-        log("Payload terkirim (" + sent + " byte" + (parts.length > 1 ? ", " + parts.length + " bagian" : "") + ")");
+        log("✔ Payload terkirim");
     }
 
     private void readReply(Socket sock, PushbackInputStream pin) throws IOException {
@@ -357,7 +357,7 @@ public class SshManager {
                     if (last4 == 0x0D0A0D0A || sb.length() > 16384) break;
                 }
                 String line = sb.toString().split("\r\n")[0];
-                log("Balasan: " + line);
+                log("✔ " + line);
                 String[] sp = line.split(" ");
                 int code = 0;
                 try { code = Integer.parseInt(sp[1]); } catch (Exception ignored) { }
