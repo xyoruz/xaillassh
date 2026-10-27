@@ -32,7 +32,7 @@ public class SshManager {
                 session.connect();
 
                 cb.onLog("Setting up SOCKS proxy on port " + localPort);
-                session.setPortForwardingD(localPort, "127.0.0.1", localPort);
+                session.setPortForwardingR(localPort, "127.0.0.1", localPort);
 
                 cb.onLog("Connection Established!");
                 cb.onConnected();
