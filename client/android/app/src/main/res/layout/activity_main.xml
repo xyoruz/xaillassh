@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:background="#FF121212">
 
+    <!-- HEADER -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -15,6 +16,7 @@
         <TextView android:id="@+id/tvStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="● DISCONNECTED" android:textColor="#FFD32F2F" android:textSize="12sp" android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- TAB MENU -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="45dp"
@@ -28,31 +30,18 @@
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="16dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
 
+            <!-- FORM SSH -->
             <LinearLayout android:id="@+id/formSsh" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                 
-                <!-- FITUR BARU: QUICK CONNECT FORMAT -->
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="QUICK CONNECT (Host:Port@User:Pass)" android:textColor="#FF00E676" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+                <!-- QUICK CONNECT (Satu-satunya input SSH) -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="QUICK CONNECT" android:textColor="#FF00E676" android:textSize="14sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Format: host:port@user:pass" android:textColor="#FFB0B0B0" android:textSize="12sp" android:layout_marginBottom="8dp"/>
+                
                 <EditText android:id="@+id/etQuickConnect" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:textColorHint="#FF808080" android:hint="id3.aryus09.com:80@xailla:sihab"/>
-                <Button android:id="@+id/btnParse" android:layout_width="match_parent" android:layout_height="40dp" android:text="ISI OTOMATIS" android:backgroundTint="#FF1A73E8" android:layout_marginTop="4dp" android:layout_marginBottom="16dp"/>
+                
+                <Button android:id="@+id/btnParse" android:layout_width="match_parent" android:layout_height="45dp" android:text="ISI OTOMATIS" android:backgroundTint="#FF1A73E8" android:layout_marginTop="8dp" android:layout_marginBottom="24dp"/>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SSH HOST" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                <EditText android:id="@+id/etSshHost" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="IP / Domain Server"/>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SSH PORT" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold"/>
-                        <EditText android:id="@+id/etSshPort" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:inputType="number" android:text="22"/>
-                    </LinearLayout>
-                    <Space android:layout_width="12dp" android:layout_height="1dp"/>
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.5" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="USERNAME" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold"/>
-                        <EditText android:id="@+id/etSshUser" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="User"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PASSWORD" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                <EditText android:id="@+id/etSshPass" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:inputType="textPassword" android:hint="••••••••"/>
-
+                <!-- SNI & PAYLOAD TETAP ADA -->
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SNI / HOST HEADER" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
                 <EditText android:id="@+id/etSni" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="contoh: m.facebook.com"/>
 
@@ -60,12 +49,14 @@
                 <EditText android:id="@+id/etPayload" android:layout_width="match_parent" android:layout_height="100dp" android:background="#FF2A2A2A" android:padding="12dp" android:textColor="#FFFFFFFF" android:gravity="top|start" android:inputType="textMultiLine" android:hint="GET / HTTP/1.1[crlf]Host: m.facebook.com[crlf]..."/>
             </LinearLayout>
 
+            <!-- FORM OVPN -->
             <LinearLayout android:id="@+id/formOvpn" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OVPN Config Path" android:textColor="#FFFFFFFF" android:layout_marginTop="16dp"/>
                 <EditText android:id="@+id/etOvpnPath" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="/sdcard/client.ovpn" android:layout_marginTop="8dp"/>
                 <Button android:id="@+id/btnPickOvpn" android:layout_width="match_parent" android:layout_height="50dp" android:text="PILIH FILE OVPN" android:layout_marginTop="16dp" android:backgroundTint="#FF1A73E8"/>
             </LinearLayout>
 
+            <!-- FORM SETTINGS -->
             <LinearLayout android:id="@+id/formConfig" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DNS SERVER" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="16dp"/>
                 <EditText android:id="@+id/etDns" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:text="1.1.1.1"/>
