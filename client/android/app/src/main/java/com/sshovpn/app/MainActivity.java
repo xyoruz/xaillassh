@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Bundle;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.core.view.GravityCompat;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Layout;
@@ -49,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements SshManager.Listen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        findViewById(R.id.menu_ssh).setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+        findViewById(R.id.menu_ovpn).setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+        findViewById(R.id.menu_setting).setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
         prefs = getSharedPreferences("cfg", MODE_PRIVATE);
 
         initViews();
