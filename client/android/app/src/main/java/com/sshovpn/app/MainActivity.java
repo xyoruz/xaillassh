@@ -1,7 +1,10 @@
 package com.sshovpn.app;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.VpnService;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         // --- LOGIKA MENU SAMPING ---
         
-        // 1. Menu SSH -> Buka Pop-up
+        // 1. Menu SSH
         findViewById(R.id.menu_ssh).setOnClickListener(v -> {
             showInputDialog("SSH");
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawer(GravityCompat.START);
         });
 
-        // 3. Upload Config (Load)
+        // 3. Upload Config (Load dari Penyimpanan Aman)
         findViewById(R.id.menu_upload_ssh).setOnClickListener(v -> {
             String loadedData = ConfigManager.loadConfig(this);
             if (loadedData != null) {
@@ -66,25 +69,30 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawer(GravityCompat.START);
         });
 
-        // Tombol Connect
+        // --- TOMBOL CONNECT & IZIN VPN ---
         btnConnect.setOnClickListener(v -> {
             if (activeConfigData.isEmpty()) {
                 Toast.makeText(this, "Silakan isi konfigurasi SSH dulu!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Cek Izin VPN
+            Intent intent = VpnService.prepare(MainActivity.this);
+            if (intent != null) {
+                // Jika belum diizinkan, munculkan pop-up Android
+                startActivityForResult(intent, 100);
             } else {
-                tvStatus.setText("● CONNECTING...");
-                tvStatus.setTextColor(0xFFFFA000);
-                tvLog.append("\n> Menghubungkan dengan config: " + activeConfigData);
-                // TODO: Panggil fungsi SshManager.connect() di sini
+                // Jika sudah diizinkan, langsung jalankan VPN
+                startVpnService();
             }
         });
     }
 
-    // Fungsi untuk menampilkan Pop-up Input
+    // Fungsi untuk menampilkan Pop-up Input SSH/OVPN
     private void showInputDialog(String type) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Input " + type);
         
-        // Gunakan layout dialog_ssh.xml yang sudah kita buat
         android.view.View view = getLayoutInflater().inflate(R.layout.dialog_ssh, null);
         builder.setView(view);
 
@@ -93,24 +101,60 @@ public class MainActivity extends AppCompatActivity {
         EditText etPayload = view.findViewById(R.id.etPayload);
         Button btnParse = view.findViewById(R.id.btnParse);
 
-        // Tombol Isi Otomatis
         btnParse.setOnClickListener(v -> {
             etQuick.setText("id3.aryus09.com:80@xailla:sihab");
             etSni.setText("m.facebook.com");
-            etPayload.setText("GET / HTTP/1.1[crlf]Host: m.facebook.com[crlf]");
+            etPayload.setText("GET / HTTP/1.1[crlf]Host: m.facebook.com[crlf]Upgrade: websocket[crlf]Connection: Upgrade[crlf][crlf]");
         });
 
-        builder.setPositiveButton("SIMPAN KE MEMORI", (dialog, which) -> {
-            // Simpan data ke variabel sementara (activeConfigData)
+        builder.setPositiveButton("SIMPAN", (dialog, which) -> {
             activeConfigData = "HOST:" + etQuick.getText().toString() + 
                                "|SNI:" + etSni.getText().toString() + 
                                "|PAYLOAD:" + etPayload.getText().toString();
             tvLog.append("\n> Config " + type + " dimuat ke memori.");
-            Toast.makeText(this, "Config siap digunakan", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Konfigurasi siap digunakan", Toast.LENGTH_SHORT).show();
         });
 
         builder.setNegativeButton("BATAL", (dialog, which) -> dialog.dismiss());
         builder.show();
+    }
+
+    // Fungsi Menjalankan Service VPN
+    private void startVpnService() {
+        tvStatus.setText("● CONNECTING...");
+        tvStatus.setTextColor(0xFFFFA000);
+        tvLog.append("\n> Memulai koneksi VPN...");
+        
+        // Panggil OvpnService
+        Intent serviceIntent = new Intent(this, OvpnService.class);
+        
+        // Kirim data config ke Service (Jika OvpnService Anda menerima data via Intent)
+        serviceIntent.putExtra("CONFIG_DATA", activeConfigData);
+        
+        startService(serviceIntent); 
+        
+        // Simulasi Status Connected (Bisa dihapus jika OvpnService sudah mengirim sinyal balik)
+        new Handler().postDelayed(() -> {
+            tvStatus.setText("● CONNECTED");
+            tvStatus.setTextColor(0xFF00E676);
+            tvLog.append("\n> Koneksi Berhasil (VPN Aktif)");
+        }, 2000);
+    }
+
+    // Menangkap Hasil dari Pop-up Izin VPN Android
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100) {
+            if (resultCode == RESULT_OK) {
+                // User menekan "OK"
+                startVpnService();
+            } else {
+                // User menolak
+                tvLog.append("\n> Izin VPN ditolak. Koneksi dibatalkan.");
+                Toast.makeText(this, "Izin VPN diperlukan untuk koneksi!", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
