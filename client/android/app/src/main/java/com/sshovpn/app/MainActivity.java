@@ -61,25 +61,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // ==========================================
-    // DIALOG DAFTAR AKUN (CUSTOM LAYOUT)
-    // ==========================================
     private void showAccountListDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Daftar Akun");
 
-        // Layout Utama untuk Dialog
         LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setPadding(30, 30, 30, 30);
 
-        // --- Header Dialog (Tombol Titik Tiga Global) ---
         LinearLayout headerLayout = new LinearLayout(this);
         headerLayout.setOrientation(LinearLayout.HORIZONTAL);
         headerLayout.setGravity(Gravity.END);
         
         TextView btnGlobalMenu = new TextView(this);
-        btnGlobalMenu.setText("⋮"); // Titik tiga
+        btnGlobalMenu.setText("⋮");
         btnGlobalMenu.setTextSize(28);
         btnGlobalMenu.setTextColor(Color.WHITE);
         btnGlobalMenu.setPadding(20, 0, 20, 10);
@@ -88,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
         headerLayout.addView(btnGlobalMenu);
         mainLayout.addView(headerLayout);
 
-        // --- List Akun ---
         ScrollView scrollView = new ScrollView(this);
         LinearLayout listLayout = new LinearLayout(this);
         listLayout.setOrientation(LinearLayout.VERTICAL);
@@ -105,25 +99,18 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject acc = accounts.getJSONObject(i);
                     String accName = acc.getString("name");
 
-                    // Baris untuk setiap akun
                     LinearLayout row = new LinearLayout(this);
                     row.setOrientation(LinearLayout.HORIZONTAL);
                     row.setGravity(Gravity.CENTER_VERTICAL);
                     row.setPadding(0, 15, 0, 15);
 
-                    // Nama Akun (Klik untuk memilih)
                     TextView tvName = new TextView(this);
                     tvName.setText(accName);
                     tvName.setTextColor(Color.WHITE);
                     tvName.setTextSize(16);
                     tvName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-                    tvName.setOnClickListener(v -> {
-                        loadAccountToHome(accName);
-                        // Tutup dialog setelah memilih
-                        // (Kita akan menutupnya dengan dismiss di luar)
-                    });
+                    tvName.setOnClickListener(v -> loadAccountToHome(accName));
 
-                    // Titik Tiga per Akun
                     TextView btnRowMenu = new TextView(this);
                     btnRowMenu.setText("⋮");
                     btnRowMenu.setTextSize(24);
@@ -134,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                     row.addView(tvName);
                     row.addView(btnRowMenu);
                     
-                    // Garis pemisah
                     View divider = new View(this);
                     divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
                     divider.setBackgroundColor(Color.DKGRAY);
@@ -155,43 +141,33 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    // ==========================================
-    // MENU TITIK TIGA GLOBAL (POJOK KANAN ATAS)
-    // ==========================================
     private void showGlobalMenu() {
         String[] options = {"Tambah Akun Baru", "Upload Config"};
         new AlertDialog.Builder(this)
             .setTitle("Menu Global")
             .setItems(options, (dialog, which) -> {
                 if (which == 0) {
-                    showEditAccountDialog(null); // Tambah akun baru
+                    showEditAccountDialog(null); 
                 } else {
-                    loadConfigAction(); // Upload config
+                    loadConfigAction(); 
                 }
             }).show();
     }
 
-    // ==========================================
-    // MENU TITIK TIGA PER AKUN (DI SAMPING NAMA)
-    // ==========================================
     private void showPerAccountMenu(String accName) {
         String[] options = {"Edit Akun Ini", "Save Config"};
         new AlertDialog.Builder(this)
             .setTitle(accName)
             .setItems(options, (dialog, which) -> {
                 if (which == 0) {
-                    showEditAccountDialog(accName); // Edit akun ini
+                    showEditAccountDialog(accName); 
                 } else {
-                    // Pilih akun ini dulu, baru save
                     loadAccountToHome(accName);
                     saveConfigAction(); 
                 }
             }).show();
     }
 
-    // ==========================================
-    // FORM EDIT / TAMBAH AKUN
-    // ==========================================
     private void showEditAccountDialog(String editName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(editName == null ? "Tambah Akun SSH" : "Edit Akun: " + editName);
@@ -217,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
         etPayload.setText("GET / HTTP/1.1[crlf]Host: bug.com[crlf][crlf]");
         layout.addView(etPayload);
 
-        // Jika mode Edit, isi form dengan data lama
         if (editName != null) {
             JSONObject acc = AccountManager.getAccount(this, editName);
             if (acc != null) {
@@ -246,15 +221,12 @@ public class MainActivity extends AppCompatActivity {
             AccountManager.saveAccount(this, name, host, sni, payload);
             Toast.makeText(this, "Akun " + name + " disimpan!", Toast.LENGTH_SHORT).show();
             tvLog.append("\n> Akun " + name + " disimpan.");
-            showAccountListDialog(); // Refresh daftar
+            showAccountListDialog(); 
         });
         builder.setNegativeButton("BATAL", null);
         builder.show();
     }
 
-    // ==========================================
-    // FUNGSI SAVE & UPLOAD CONFIG
-    // ==========================================
     private void saveConfigAction() {
         if (selectedAccountName.isEmpty()) {
             Toast.makeText(this, "Pilih akun dulu sebelum save config!", Toast.LENGTH_SHORT).show();
@@ -277,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                 
                 AccountManager.saveAccount(this, name + " (Loaded)", host, sni, payload);
                 Toast.makeText(this, "Config berhasil di-upload!", Toast.LENGTH_SHORT).show();
-                showAccountListDialog(); // Refresh daftar
+                showAccountListDialog(); 
             } catch (Exception e) {
                 Toast.makeText(this, "Format config tidak valid.", Toast.LENGTH_SHORT).show();
             }
@@ -286,9 +258,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ==========================================
-    // FUNGSI MEMILIH AKUN KE HOME
-    // ==========================================
     private void loadAccountToHome(String accountName) {
         try {
             JSONObject acc = AccountManager.getAccount(this, accountName);
@@ -305,9 +274,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // ==========================================
-    // FUNGSI JALANKAN VPN
-    // ==========================================
     private void startVpnService() {
         tvStatus.setText("● CONNECTING...");
         tvStatus.setTextColor(0xFFFFA000);
