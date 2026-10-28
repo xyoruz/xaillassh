@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">SSH OVPN</string>
     
-    <!-- Teks untuk Dialog Akun (Dari error sebelumnya) -->
+    <!-- Teks untuk Dialog Akun -->
     <string name="dlg_name">Nama Akun</string>
     <string name="dlg_host">Host / Port</string>
     <string name="dlg_connect">Host:Port@User:Pass</string>
@@ -10,10 +10,14 @@
     <string name="dlg_payload_example">GET / HTTP/1.1[crlf]Host: bug.com[crlf][crlf]</string>
     <string name="dlg_proxy">Remote Proxy (Opsional)</string>
 
-    <!-- Teks Baru (Dari error di gambar) -->
+    <!-- Teks Baru (Dari error sebelumnya & saat ini) -->
     <string name="dlg_tls">Aktifkan SSL / TLS</string>
+    <string name="dlg_tls_hint">Gunakan SSL/TLS (Opsional)</string>
     <string name="dlg_hint">Isi konfigurasi dengan benar</string>
     <string name="dlg_split">Bypass DPI / Split Payload</string>
     <string name="dlg_reconnect">Auto Reconnect</string>
     <string name="dlg_more">Menu Lainnya</string>
+    
+    <!-- Teks untuk Item Akun -->
+    <string name="cd_more">Menu Lainnya</string>
 </resources>
