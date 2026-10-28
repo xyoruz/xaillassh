@@ -1,9 +1,13 @@
 package com.sshovpn.app;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.VpnService;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -15,8 +19,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -30,6 +34,29 @@ public class MainActivity extends AppCompatActivity {
     private String selectedHost = "";
     private String selectedSni = "";
     private String selectedPayload = "";
+
+    // Menerima pesan dari OvpnService / SshManager
+    private final BroadcastReceiver vpnStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String status = intent.getStringExtra("STATUS");
+            String message = intent.getStringExtra("MESSAGE");
+
+            if (status != null) {
+                if (status.equals("CONNECTED")) {
+                    tvStatus.setText("● CONNECTED");
+                    tvStatus.setTextColor(Color.parseColor("#FF00E676"));
+                } else if (status.equals("DISCONNECTED")) {
+                    tvStatus.setText("● DISCONNECTED");
+                    tvStatus.setTextColor(Color.parseColor("#FFD32F2F"));
+                } else if (status.equals("ERROR")) {
+                    tvStatus.setText("● ERROR");
+                    tvStatus.setTextColor(Color.parseColor("#FFD32F2F"));
+                }
+                tvLog.append("\n> " + message);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Pilih akun terlebih dahulu di menu Akun!", Toast.LENGTH_SHORT).show();
                 return;
             }
+            
+            // Cek izin VPN
             Intent intent = VpnService.prepare(MainActivity.this);
             if (intent != null) {
                 startActivityForResult(intent, 100);
@@ -59,8 +88,35 @@ public class MainActivity extends AppCompatActivity {
                 startVpnService();
             }
         });
+
+        // Daftarkan penerima sinyal status (untuk Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(vpnStatusReceiver, new IntentFilter("VPN_STATUS_UPDATE"), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(vpnStatusReceiver, new IntentFilter("VPN_STATUS_UPDATE"));
+        }
     }
 
+    private void startVpnService() {
+        tvStatus.setText("● CONNECTING...");
+        tvStatus.setTextColor(Color.parseColor("#FFFFA000"));
+        tvLog.append("\n> Meminta OvpnService menyambung ke server...");
+        
+        Intent serviceIntent = new Intent(this, OvpnService.class);
+        // Kirim data akun yang dipilih ke Service
+        serviceIntent.putExtra("HOST_DATA", selectedHost);
+        serviceIntent.putExtra("SNI_DATA", selectedSni);
+        serviceIntent.putExtra("PAYLOAD_DATA", selectedPayload);
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+    }
+
+    // --- SEMUA FUNGSI UI DIALOG TETAP SAMA SEPERTI SEBELUMNYA ---
+    
     private void showAccountListDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Daftar Akun");
@@ -78,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         btnGlobalMenu.setTextSize(28);
         btnGlobalMenu.setTextColor(Color.WHITE);
         btnGlobalMenu.setPadding(20, 0, 20, 10);
-        
         btnGlobalMenu.setOnClickListener(v -> showGlobalMenu());
         headerLayout.addView(btnGlobalMenu);
         mainLayout.addView(headerLayout);
@@ -130,42 +185,31 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (Exception e) { e.printStackTrace(); }
         }
-
         scrollView.addView(listLayout);
         mainLayout.addView(scrollView);
         builder.setView(mainLayout);
-
         builder.setNegativeButton("Tutup", (dialog, which) -> dialog.dismiss());
-        
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
     private void showGlobalMenu() {
         String[] options = {"Tambah Akun Baru", "Upload Config"};
-        new AlertDialog.Builder(this)
-            .setTitle("Menu Global")
-            .setItems(options, (dialog, which) -> {
-                if (which == 0) {
-                    showEditAccountDialog(null); 
-                } else {
-                    loadConfigAction(); 
-                }
-            }).show();
+        new AlertDialog.Builder(this).setTitle("Menu Global").setItems(options, (dialog, which) -> {
+            if (which == 0) showEditAccountDialog(null); 
+            else loadConfigAction(); 
+        }).show();
     }
 
     private void showPerAccountMenu(String accName) {
         String[] options = {"Edit Akun Ini", "Save Config"};
-        new AlertDialog.Builder(this)
-            .setTitle(accName)
-            .setItems(options, (dialog, which) -> {
-                if (which == 0) {
-                    showEditAccountDialog(accName); 
-                } else {
-                    loadAccountToHome(accName);
-                    saveConfigAction(); 
-                }
-            }).show();
+        new AlertDialog.Builder(this).setTitle(accName).setItems(options, (dialog, which) -> {
+            if (which == 0) showEditAccountDialog(accName); 
+            else {
+                loadAccountToHome(accName);
+                saveConfigAction(); 
+            }
+        }).show();
     }
 
     private void showEditAccountDialog(String editName) {
@@ -206,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         builder.setView(layout);
-
         builder.setPositiveButton("SIMPAN", (dialog, which) -> {
             String name = etName.getText().toString().trim();
             String host = etHost.getText().toString().trim();
@@ -217,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Nama dan Host tidak boleh kosong!", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             AccountManager.saveAccount(this, name, host, sni, payload);
             Toast.makeText(this, "Akun " + name + " disimpan!", Toast.LENGTH_SHORT).show();
             tvLog.append("\n> Akun " + name + " disimpan.");
@@ -246,7 +288,6 @@ public class MainActivity extends AppCompatActivity {
                 String host = loaded.split("\\|")[1].replace("HOST:", "");
                 String sni = loaded.split("\\|")[2].replace("SNI:", "");
                 String payload = loaded.split("\\|")[3].replace("PAYLOAD:", "");
-                
                 AccountManager.saveAccount(this, name + " (Loaded)", host, sni, payload);
                 Toast.makeText(this, "Config berhasil di-upload!", Toast.LENGTH_SHORT).show();
                 showAccountListDialog(); 
@@ -274,35 +315,21 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private void startVpnService() {
-        tvStatus.setText("● CONNECTING...");
-        tvStatus.setTextColor(0xFFFFA000);
-        tvLog.append("\n> Memulai SSH: " + selectedAccountName);
-        
-        Intent serviceIntent = new Intent(this, OvpnService.class);
-        serviceIntent.putExtra("HOST_DATA", selectedHost);
-        serviceIntent.putExtra("SNI_DATA", selectedSni);
-        serviceIntent.putExtra("PAYLOAD_DATA", selectedPayload);
-        
-        startService(serviceIntent); 
-        
-        new Handler().postDelayed(() -> {
-            tvStatus.setText("● CONNECTED");
-            tvStatus.setTextColor(0xFF00E676);
-            tvLog.append("\n> Koneksi SSH Aktif!");
-        }, 2000);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100) {
-            if (resultCode == RESULT_OK) {
-                startVpnService();
-            } else {
-                tvLog.append("\n> Izin VPN ditolak.");
-            }
+            if (resultCode == RESULT_OK) startVpnService();
+            else tvLog.append("\n> Izin VPN ditolak.");
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unregisterReceiver(vpnStatusReceiver);
+        } catch (Exception e) {}
     }
 
     @Override

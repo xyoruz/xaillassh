@@ -20,20 +20,68 @@ public class OvpnService extends VpnService implements SshManager.Listener {
             stopSelf();
             return START_NOT_STICKY;
         }
+        
         SshManager mgr = SshManager.get();
+        
         if (ACTION_STOP.equals(intent.getAction())) {
             mgr.stop();
             closeTun();
             stopSelf();
             return START_NOT_STICKY;
         }
-        SshManager.Config cfg = SshManager.pending;
-        if (cfg == null) {
+
+        // MENGAMBIL DATA DARI MAINACTIVITY
+        String hostData = intent.getStringExtra("HOST_DATA");
+        String sniData = intent.getStringExtra("SNI_DATA");
+        String payloadData = intent.getStringExtra("PAYLOAD_DATA");
+
+        if (hostData == null) {
+            sendStatus("ERROR", "Data Host kosong!");
             stopSelf();
             return START_NOT_STICKY;
         }
-        mgr.addListener(this);
-        mgr.start(cfg);
+
+        // Memecah data Host (format: host:port@user:pass)
+        String[] parts = hostData.split("@");
+        if (parts.length != 2) {
+            sendStatus("ERROR", "Format Host salah! Gunakan host:port@user:pass");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
+        String hostPort = parts[0];
+        String userPass = parts[1];
+
+        String[] hp = hostPort.split(":");
+        String host = hp[0];
+        int port = hp.length > 1 ? Integer.parseInt(hp[1]) : 22;
+
+        String[] up = userPass.split(":");
+        String user = up[0];
+        String pass = up.length > 1 ? up[1] : "";
+
+        sendStatus("CONNECTING", "Menghubungkan ke " + host + ":" + port);
+
+        try {
+            // Membuat konfigurasi baru untuk SshManager
+            SshManager.Config cfg = new SshManager.Config();
+            cfg.host = host;
+            cfg.port = port;
+            cfg.user = user;
+            cfg.pass = pass;
+            cfg.sni = sniData;
+            cfg.payload = payloadData;
+            
+            // Simpan ke pending dan jalankan
+            SshManager.pending = cfg;
+            mgr.addListener(this);
+            mgr.start(cfg);
+
+        } catch (Exception e) {
+            sendStatus("ERROR", "Gagal memulai: " + e.getMessage());
+            stopSelf();
+        }
+
         return START_NOT_STICKY;
     }
 
@@ -52,9 +100,11 @@ public class OvpnService extends VpnService implements SshManager.Listener {
             tun = b.establish();
             if (tun == null) {
                 SshManager.get().stop();
+                sendStatus("ERROR", "Gagal membuat antarmuka VPN.");
             }
         } catch (Throwable e) {
             SshManager.get().stop();
+            sendStatus("ERROR", "Error VPN: " + e.getMessage());
         }
     }
 
@@ -65,15 +115,30 @@ public class OvpnService extends VpnService implements SshManager.Listener {
         }
     }
 
-    @Override public void onLog(String msg) { }
-    @Override public void onError(String msg) { }
+    // MENGIRIM SINYAL KE MAINACTIVITY
+    private void sendStatus(String status, String msg) {
+        Intent i = new Intent("VPN_STATUS_UPDATE");
+        i.putExtra("STATUS", status);
+        i.putExtra("MESSAGE", msg);
+        sendBroadcast(i);
+    }
+
+    @Override public void onLog(String msg) { 
+        sendStatus("LOG", msg);
+    }
+    
+    @Override public void onError(String msg) { 
+        sendStatus("ERROR", msg);
+    }
 
     @Override
     public void onState(SshManager.State s) {
         if (s == SshManager.State.CONNECTED) {
             establish();
+            sendStatus("CONNECTED", "SSH Terhubung & VPN Aktif!");
         } else if (s == SshManager.State.DISCONNECTED) {
             closeTun();
+            sendStatus("DISCONNECTED", "Koneksi terputus.");
             stopSelf();
         }
     }
