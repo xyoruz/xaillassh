@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">SSH OVPN</string>
+    
+    <!-- Teks untuk Dialog Akun (Berdasarkan Error Log) -->
+    <string name="dlg_name">Nama Akun</string>
+    <string name="dlg_host">Host / Port</string>
+    <string name="dlg_connect">Host:Port@User:Pass</string>
+    <string name="dlg_sni">SNI / Host Header (Opsional)</string>
+    <string name="dlg_payload">HTTP Payload</string>
+    <string name="dlg_payload_example">GET / HTTP/1.1[crlf]Host: bug.com[crlf][crlf]</string>
+    <string name="dlg_proxy">Remote Proxy (Opsional)</string>
 </resources>
