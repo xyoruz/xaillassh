@@ -6,13 +6,12 @@
     android:layout_height="match_parent"
     android:background="#FF121212">
 
-    <!-- HALAMAN UTAMA (HOME) -->
+    <!-- HALAMAN UTAMA -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- HEADER -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -23,10 +22,8 @@
             <TextView android:id="@+id/tvStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="● DISCONNECTED" android:textColor="#FFD32F2F" android:textSize="12sp" android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- INFORMASI AKUN AKTIF -->
         <TextView android:id="@+id/tvActiveAccount" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Akun Aktif: Belum Dipilih" android:textColor="#FF00E676" android:textSize="14sp" android:padding="16dp" android:gravity="center"/>
 
-        <!-- AREA GRAFIK BANDWIDTH (TRANSPARAN) -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -40,26 +37,14 @@
                 android:textColor="#44FFFFFF"
                 android:textSize="20sp"
                 android:gravity="center"/>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:orientation="vertical"
-                android:padding="16dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="↓ 0.00 KB/s" android:textColor="#FF00E676" android:textStyle="bold"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="↑ 0.00 KB/s" android:textColor="#FF1A73E8" android:textStyle="bold"/>
-            </LinearLayout>
         </RelativeLayout>
 
-        <!-- LOG -->
         <TextView android:id="@+id/tvLog" android:layout_width="match_parent" android:layout_height="120dp" android:background="#80000000" android:fontFamily="monospace" android:padding="8dp" android:scrollbars="vertical" android:text="> Ready to connect..." android:textColor="#FF00E676" android:textSize="10sp" />
 
-        <!-- TOMBOL CONNECT -->
         <Button android:id="@+id/btnConnect" android:layout_width="match_parent" android:layout_height="60dp" android:layout_margin="16dp" android:text="START" android:textSize="18sp" android:textStyle="bold" android:textColor="#FF000000" android:backgroundTint="#FF00C853" />
     </LinearLayout>
 
-    <!-- MENU SAMPING KIRI (DRAWER) -->
+    <!-- MENU SAMPING KIRI (HANYA AKUN) -->
     <ScrollView
         android:layout_width="280dp"
         android:layout_height="match_parent"
@@ -73,20 +58,12 @@
             
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="XAILLASSH MENU" android:textColor="#FF00E676" android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="24dp"/>
 
-            <!-- AKUN KATEGORI -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AKUN" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="8dp"/>
-            <TextView android:id="@+id/menu_akun" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Manajemen Akun" android:textColor="#FF00E676" android:textStyle="bold" android:padding="12dp"/>
-            <TextView android:id="@+id/menu_tambah_akun" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   + Tambah Akun SSH" android:textColor="#FFB0B0B0" android:padding="12dp"/>
-
-            <!-- X-RAY KATEGORI -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="X-RAY" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
-            <TextView android:id="@+id/menu_vmees" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Vmees" android:textColor="#FFB0B0B0" android:padding="12dp"/>
-            <TextView android:id="@+id/menu_bless" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Bless" android:textColor="#FFB0B0B0" android:padding="12dp"/>
-            <TextView android:id="@+id/menu_trojan" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Trojan" android:textColor="#FFB0B0B0" android:padding="12dp"/>
-            <TextView android:id="@+id/menu_ss" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Ss" android:textColor="#FFB0B0B0" android:padding="12dp"/>
+            <!-- MENU AKUN (ID INI YANG DICARI OLEH JAVA) -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UTAMA" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="8dp"/>
+            <TextView android:id="@+id/menu_akun_utama" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Akun" android:textColor="#FF00E676" android:textSize="16sp" android:textStyle="bold" android:padding="12dp"/>
 
             <!-- DEVELOPER -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Developer" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Developer" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="24dp"/>
             <TextView android:id="@+id/menu_dev" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   XaillaXsh" android:textColor="#FFB0B0B0" android:padding="12dp"/>
         </LinearLayout>
     </ScrollView>
