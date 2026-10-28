@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FF1E1E1E">
+    
+    <EditText android:id="@+id/etQuickConnect" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="Host:Port@User:Pass"/>
+    <Button android:id="@+id/btnParse" android:layout_width="match_parent" android:layout_height="45dp" android:text="ISI OTOMATIS" android:backgroundTint="#FF1A73E8" android:layout_marginTop="8dp"/>
+    
+    <EditText android:id="@+id/etSni" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="SNI / Host Header" android:layout_marginTop="8dp"/>
+    <EditText android:id="@+id/etPayload" android:layout_width="match_parent" android:layout_height="100dp" android:background="#FF2A2A2A" android:padding="12dp" android:textColor="#FFFFFFFF" android:gravity="top|start" android:inputType="textMultiLine" android:hint="HTTP Payload" android:layout_marginTop="8dp"/>
+</LinearLayout>

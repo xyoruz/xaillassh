@@ -6,67 +6,61 @@
     android:layout_height="match_parent"
     android:background="#FF121212">
 
+    <!-- HALAMAN UTAMA (HOME) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="#FF121212">
+        android:orientation="vertical">
 
+        <!-- HEADER -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="#FF1E1E1E"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp">
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="SSH OVPN" android:textColor="#FFFFFFFF" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="MONITORING" android:textColor="#FFFFFFFF" android:textSize="18sp" android:textStyle="bold" />
             <TextView android:id="@+id/tvStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="● DISCONNECTED" android:textColor="#FFD32F2F" android:textSize="12sp" android:textStyle="bold" />
         </LinearLayout>
 
-        <LinearLayout
+        <!-- AREA GRAFIK BANDWIDTH (TRANSPARAN) -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:background="#FF1E1E1E"
-            android:orientation="horizontal">
-            <TextView android:id="@+id/tabSsh" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="SSH" android:textColor="#FF1A73E8" android:textStyle="bold" android:background="#FF2A2A2A"/>
-            <TextView android:id="@+id/tabOvpn" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="OVPN" android:textColor="#FFB0B0B0" />
-            <TextView android:id="@+id/tabConfig" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="SETTINGS" android:textColor="#FFB0B0B0" />
-        </LinearLayout>
-
-        <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="16dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                <LinearLayout android:id="@+id/formSsh" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="QUICK CONNECT" android:textColor="#FF00E676" android:textSize="14sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Format: host:port@user:pass" android:textColor="#FFB0B0B0" android:textSize="12sp" android:layout_marginBottom="8dp"/>
-                    <EditText android:id="@+id/etQuickConnect" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:textColorHint="#FF808080" android:hint="id3.aryus09.com:80@xailla:sihab"/>
-                    <Button android:id="@+id/btnParse" android:layout_width="match_parent" android:layout_height="45dp" android:text="ISI OTOMATIS" android:backgroundTint="#FF1A73E8" android:layout_marginTop="8dp" android:layout_marginBottom="24dp"/>
-                    <CheckBox android:id="@+id/cbSsl" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="SSL / TLS (pakai SNI)" android:textColor="#FFFFFFFF"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="REMOTE PROXY (opsional)" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                    <EditText android:id="@+id/etProxy" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:textColorHint="#FF808080" android:singleLine="true" android:hint="host:port"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SNI / HOST HEADER" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                    <EditText android:id="@+id/etSni" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:textColorHint="#FF808080" android:singleLine="true" android:hint="contoh: m.facebook.com"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HTTP PAYLOAD" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
-                    <EditText android:id="@+id/etPayload" android:layout_width="match_parent" android:layout_height="100dp" android:background="#FF2A2A2A" android:padding="12dp" android:textColor="#FFFFFFFF" android:gravity="top|start" android:inputType="textMultiLine" android:textColorHint="#FF808080" android:hint="GET / HTTP/1.1[crlf]Host: m.facebook.com[crlf]..."/>
-                </LinearLayout>
-
-                <LinearLayout android:id="@+id/formOvpn" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OVPN Config Path" android:textColor="#FFFFFFFF" android:layout_marginTop="16dp"/>
-                    <EditText android:id="@+id/etOvpnPath" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:hint="/sdcard/client.ovpn" android:layout_marginTop="8dp"/>
-                    <Button android:id="@+id/btnPickOvpn" android:layout_width="match_parent" android:layout_height="50dp" android:text="PILIH FILE OVPN" android:layout_marginTop="16dp" android:backgroundTint="#FF1A73E8"/>
-                </LinearLayout>
-
-                <LinearLayout android:id="@+id/formConfig" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DNS SERVER" android:textColor="#FFB0B0B0" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="16dp"/>
-                    <EditText android:id="@+id/etDns" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF2A2A2A" android:paddingHorizontal="12dp" android:textColor="#FFFFFFFF" android:text="1.1.1.1"/>
-                    <CheckBox android:id="@+id/cbAutoReconnect" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Auto Reconnect" android:textColor="#FFFFFFFF" android:checked="true" android:layout_marginTop="16dp"/>
-                    <CheckBox android:id="@+id/cbBypassDpi" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bypass DPI / Split Payload" android:textColor="#FFFFFFFF"/>
-                </LinearLayout>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#00000000">
+            
+            <!-- Placeholder untuk Grafik (Bisa diganti dengan library chart nanti) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="📊\nGrafik Bandwidth Transparan"
+                android:textColor="#44FFFFFF"
+                android:textSize="20sp"
+                android:gravity="center"/>
+                
+            <!-- Contoh Teks Kecepatan -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:orientation="vertical"
+                android:padding="16dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="↓ 0.00 KB/s" android:textColor="#FF00E676" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="↑ 0.00 KB/s" android:textColor="#FF1A73E8" android:textStyle="bold"/>
             </LinearLayout>
-        </ScrollView>
+        </RelativeLayout>
 
-        <TextView android:id="@+id/tvLog" android:layout_width="match_parent" android:layout_height="130dp" android:background="#FF000000" android:fontFamily="monospace" android:padding="8dp" android:scrollbars="vertical" android:text="> Ready to connect..." android:textColor="#FF00E676" android:textSize="10sp" />
-        <Button android:id="@+id/btnConnect" android:layout_width="match_parent" android:layout_height="60dp" android:layout_margin="12dp" android:text="CONNECT" android:textSize="16sp" android:textStyle="bold" android:textColor="#FF000000" android:backgroundTint="#FF00C853" />
+        <!-- LOG -->
+        <TextView android:id="@+id/tvLog" android:layout_width="match_parent" android:layout_height="120dp" android:background="#80000000" android:fontFamily="monospace" android:padding="8dp" android:scrollbars="vertical" android:text="> Ready to connect..." android:textColor="#FF00E676" android:textSize="10sp" />
+
+        <!-- TOMBOL CONNECT -->
+        <Button android:id="@+id/btnConnect" android:layout_width="match_parent" android:layout_height="60dp" android:layout_margin="16dp" android:text="CONNECT" android:textSize="18sp" android:textStyle="bold" android:textColor="#FF000000" android:backgroundTint="#FF00C853" />
     </LinearLayout>
 
+    <!-- MENU SAMPING KIRI (DRAWER) -->
     <ScrollView
         android:layout_width="280dp"
         android:layout_height="match_parent"
@@ -77,21 +71,30 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SSH OVPN MENU" android:textColor="#FF00E676" android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="24dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SSH" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
+            
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="XAILLASSH MENU" android:textColor="#FF00E676" android:textSize="20sp" android:textStyle="bold" android:layout_marginBottom="24dp"/>
+
+            <!-- SSH KATEGORI -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SSH" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="8dp"/>
             <TextView android:id="@+id/menu_ssh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   SSH" android:textColor="#FFB0B0B0" android:padding="12dp"/>
             <TextView android:id="@+id/menu_ovpn" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   OVPN" android:textColor="#FFB0B0B0" android:padding="12dp"/>
             <TextView android:id="@+id/menu_upload_ssh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Upload config" android:textColor="#FFB0B0B0" android:padding="12dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Setting" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
-            <TextView android:id="@+id/menu_setting" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Pengaturan" android:textColor="#FFB0B0B0" android:padding="12dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="X-ray" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
+
+            <!-- X-RAY KATEGORI -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="X-RAY" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
             <TextView android:id="@+id/menu_vmees" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Vmees" android:textColor="#FFB0B0B0" android:padding="12dp"/>
             <TextView android:id="@+id/menu_bless" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Bless" android:textColor="#FFB0B0B0" android:padding="12dp"/>
             <TextView android:id="@+id/menu_trojan" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Trojan" android:textColor="#FFB0B0B0" android:padding="12dp"/>
             <TextView android:id="@+id/menu_ss" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Ss" android:textColor="#FFB0B0B0" android:padding="12dp"/>
             <TextView android:id="@+id/menu_upload_xray" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Upload config" android:textColor="#FFB0B0B0" android:padding="12dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Developer" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
-            <TextView android:id="@+id/menu_dev" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   XaillaXsh" android:textColor="#FFB0B0B0" android:padding="12dp"/>
+
+            <!-- MENU TAMBAHAN -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="LAINNYA" android:textColor="#FFFFFFFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
+            
+            <!-- FITUR BARU: SAVE CONFIG (TERSEMBUNYI) -->
+            <TextView android:id="@+id/menu_save_config" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Save Config XaillaXsh" android:textColor="#FFFF9800" android:textStyle="bold" android:padding="12dp"/>
+            
+            <TextView android:id="@+id/menu_dev" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="   Developer XaillaXsh" android:textColor="#FFB0B0B0" android:padding="12dp"/>
         </LinearLayout>
     </ScrollView>
 </androidx.drawerlayout.widget.DrawerLayout>
