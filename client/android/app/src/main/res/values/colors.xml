@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Warna Tema Lama -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <!-- Warna Baru untuk Tema (Berdasarkan Error Log) -->
     <color name="primary">#FF00E676</color>
     <color name="on_primary">#FF000000</color>
     <color name="text">#FFFFFFFF</color>
@@ -13,4 +10,7 @@
     <color name="outline">#FF444444</color>
     <color name="success">#FF00C853</color>
     <color name="danger">#FFD32F2F</color>
+    
+    <!-- Warna untuk Icon Launcher (Dari error di gambar) -->
+    <color name="ic_launcher_background">#121212</color>
 </resources>
