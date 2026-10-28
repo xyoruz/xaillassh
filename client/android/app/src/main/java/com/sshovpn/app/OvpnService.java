@@ -35,7 +35,7 @@ public class OvpnService extends VpnService implements SshManager.Listener {
         String sniData = intent.getStringExtra("SNI_DATA");
         String payloadData = intent.getStringExtra("PAYLOAD_DATA");
 
-        if (hostData == null) {
+        if (hostData == null || hostData.isEmpty()) {
             sendStatus("ERROR", "Data Host kosong!");
             stopSelf();
             return START_NOT_STICKY;
@@ -63,18 +63,19 @@ public class OvpnService extends VpnService implements SshManager.Listener {
         sendStatus("CONNECTING", "Menghubungkan ke " + host + ":" + port);
 
         try {
-            // Membuat konfigurasi baru untuk SshManager
+            // MEMBUAT KONFIGURASI SESUAI SSHMANAGER ASLI
             SshManager.Config cfg = new SshManager.Config();
             cfg.host = host;
             cfg.port = port;
             cfg.user = user;
             cfg.pass = pass;
-            cfg.sni = sniData;
-            cfg.payload = payloadData;
+            cfg.sni = (sniData != null) ? sniData : "";
+            cfg.payload = (payloadData != null) ? payloadData : "";
             
-            // Simpan ke pending dan jalankan
-            SshManager.pending = cfg;
+            // Daftarkan listener agar bisa menerima status
             mgr.addListener(this);
+            
+            // JALANKAN SSH MANAGER
             mgr.start(cfg);
 
         } catch (Exception e) {
@@ -123,11 +124,13 @@ public class OvpnService extends VpnService implements SshManager.Listener {
         sendBroadcast(i);
     }
 
-    @Override public void onLog(String msg) { 
+    @Override 
+    public void onLog(String msg) { 
         sendStatus("LOG", msg);
     }
     
-    @Override public void onError(String msg) { 
+    @Override 
+    public void onError(String msg) { 
         sendStatus("ERROR", msg);
     }
 

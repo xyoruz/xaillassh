@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private String selectedHost = "";
     private String selectedSni = "";
     private String selectedPayload = "";
+    
+    // Status untuk mengontrol tombol
+    private boolean isVpnConnected = false;
 
     // Menerima pesan dari OvpnService / SshManager
     private final BroadcastReceiver vpnStatusReceiver = new BroadcastReceiver() {
@@ -46,12 +48,18 @@ public class MainActivity extends AppCompatActivity {
                 if (status.equals("CONNECTED")) {
                     tvStatus.setText("● CONNECTED");
                     tvStatus.setTextColor(Color.parseColor("#FF00E676"));
+                    isVpnConnected = true;
+                    updateButtonUI();
                 } else if (status.equals("DISCONNECTED")) {
                     tvStatus.setText("● DISCONNECTED");
                     tvStatus.setTextColor(Color.parseColor("#FFD32F2F"));
+                    isVpnConnected = false;
+                    updateButtonUI();
                 } else if (status.equals("ERROR")) {
                     tvStatus.setText("● ERROR");
                     tvStatus.setTextColor(Color.parseColor("#FFD32F2F"));
+                    isVpnConnected = false;
+                    updateButtonUI();
                 }
                 tvLog.append("\n> " + message);
             }
@@ -74,18 +82,23 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawer(GravityCompat.START);
         });
 
+        // LOGIKA TOMBOL START / STOP
         btnConnect.setOnClickListener(v -> {
-            if (selectedAccountName.isEmpty()) {
-                Toast.makeText(this, "Pilih akun terlebih dahulu di menu Akun!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            
-            // Cek izin VPN
-            Intent intent = VpnService.prepare(MainActivity.this);
-            if (intent != null) {
-                startActivityForResult(intent, 100);
+            if (isVpnConnected) {
+                // Jika sedang terhubung, hentikan VPN
+                stopVpnService();
             } else {
-                startVpnService();
+                // Jika terputus, mulai VPN
+                if (selectedAccountName.isEmpty()) {
+                    Toast.makeText(this, "Pilih akun terlebih dahulu di menu Akun!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = VpnService.prepare(MainActivity.this);
+                if (intent != null) {
+                    startActivityForResult(intent, 100);
+                } else {
+                    startVpnService();
+                }
             }
         });
 
@@ -97,13 +110,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateButtonUI() {
+        if (isVpnConnected) {
+            btnConnect.setText("STOP");
+            btnConnect.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFD32F2F")));
+        } else {
+            btnConnect.setText("START");
+            btnConnect.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FF00C853")));
+        }
+    }
+
     private void startVpnService() {
         tvStatus.setText("● CONNECTING...");
         tvStatus.setTextColor(Color.parseColor("#FFFFA000"));
-        tvLog.append("\n> Meminta OvpnService menyambung ke server...");
+        tvLog.append("\n> Memulai SSH ke " + selectedAccountName);
         
         Intent serviceIntent = new Intent(this, OvpnService.class);
-        // Kirim data akun yang dipilih ke Service
+        serviceIntent.setAction(OvpnService.ACTION_START);
         serviceIntent.putExtra("HOST_DATA", selectedHost);
         serviceIntent.putExtra("SNI_DATA", selectedSni);
         serviceIntent.putExtra("PAYLOAD_DATA", selectedPayload);
@@ -115,20 +138,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void stopVpnService() {
+        tvLog.append("\n> Menghentikan koneksi...");
+        Intent serviceIntent = new Intent(this, OvpnService.class);
+        serviceIntent.setAction(OvpnService.ACTION_STOP);
+        startService(serviceIntent);
+        
+        // Segera update UI (meskipun service mungkin butuh waktu)
+        isVpnConnected = false;
+        updateButtonUI();
+        tvStatus.setText("● DISCONNECTED");
+        tvStatus.setTextColor(Color.parseColor("#FFD32F2F"));
+    }
+
     // --- SEMUA FUNGSI UI DIALOG TETAP SAMA SEPERTI SEBELUMNYA ---
-    
     private void showAccountListDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Daftar Akun");
-
         LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setPadding(30, 30, 30, 30);
-
         LinearLayout headerLayout = new LinearLayout(this);
         headerLayout.setOrientation(LinearLayout.HORIZONTAL);
         headerLayout.setGravity(Gravity.END);
-        
         TextView btnGlobalMenu = new TextView(this);
         btnGlobalMenu.setText("⋮");
         btnGlobalMenu.setTextSize(28);
@@ -137,11 +169,9 @@ public class MainActivity extends AppCompatActivity {
         btnGlobalMenu.setOnClickListener(v -> showGlobalMenu());
         headerLayout.addView(btnGlobalMenu);
         mainLayout.addView(headerLayout);
-
         ScrollView scrollView = new ScrollView(this);
         LinearLayout listLayout = new LinearLayout(this);
         listLayout.setOrientation(LinearLayout.VERTICAL);
-
         JSONArray accounts = AccountManager.getAccounts(this);
         if (accounts.length() == 0) {
             TextView emptyText = new TextView(this);
@@ -153,33 +183,27 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < accounts.length(); i++) {
                     JSONObject acc = accounts.getJSONObject(i);
                     String accName = acc.getString("name");
-
                     LinearLayout row = new LinearLayout(this);
                     row.setOrientation(LinearLayout.HORIZONTAL);
                     row.setGravity(Gravity.CENTER_VERTICAL);
                     row.setPadding(0, 15, 0, 15);
-
                     TextView tvName = new TextView(this);
                     tvName.setText(accName);
                     tvName.setTextColor(Color.WHITE);
                     tvName.setTextSize(16);
                     tvName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
                     tvName.setOnClickListener(v -> loadAccountToHome(accName));
-
                     TextView btnRowMenu = new TextView(this);
                     btnRowMenu.setText("⋮");
                     btnRowMenu.setTextSize(24);
                     btnRowMenu.setTextColor(Color.WHITE);
                     btnRowMenu.setPadding(20, 0, 0, 0);
                     btnRowMenu.setOnClickListener(v -> showPerAccountMenu(accName));
-
                     row.addView(tvName);
                     row.addView(btnRowMenu);
-                    
                     View divider = new View(this);
                     divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
                     divider.setBackgroundColor(Color.DKGRAY);
-
                     listLayout.addView(row);
                     listLayout.addView(divider);
                 }
@@ -215,28 +239,22 @@ public class MainActivity extends AppCompatActivity {
     private void showEditAccountDialog(String editName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(editName == null ? "Tambah Akun SSH" : "Edit Akun: " + editName);
-        
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(50, 40, 50, 40);
-
         final EditText etName = new EditText(this);
         etName.setHint("Nama Akun (Cth: Server SG)");
         layout.addView(etName);
-
         final EditText etHost = new EditText(this);
         etHost.setHint("host:port@user:pass");
         layout.addView(etHost);
-
         final EditText etSni = new EditText(this);
         etSni.setHint("SNI (Cth: m.facebook.com)");
         layout.addView(etSni);
-
         final EditText etPayload = new EditText(this);
         etPayload.setHint("HTTP Payload");
         etPayload.setText("GET / HTTP/1.1[crlf]Host: bug.com[crlf][crlf]");
         layout.addView(etPayload);
-
         if (editName != null) {
             JSONObject acc = AccountManager.getAccount(this, editName);
             if (acc != null) {
@@ -248,14 +266,12 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {}
             }
         }
-
         builder.setView(layout);
         builder.setPositiveButton("SIMPAN", (dialog, which) -> {
             String name = etName.getText().toString().trim();
             String host = etHost.getText().toString().trim();
             String sni = etSni.getText().toString().trim();
             String payload = etPayload.getText().toString().trim();
-
             if (name.isEmpty() || host.isEmpty()) {
                 Toast.makeText(this, "Nama dan Host tidak boleh kosong!", Toast.LENGTH_SHORT).show();
                 return;
@@ -307,7 +323,6 @@ public class MainActivity extends AppCompatActivity {
                 selectedHost = acc.getString("host");
                 selectedSni = acc.getString("sni");
                 selectedPayload = acc.getString("payload");
-
                 tvActiveAccount.setText("Akun Aktif: " + selectedAccountName);
                 tvLog.append("\n> Akun " + selectedAccountName + " dipilih.");
                 Toast.makeText(this, "Akun " + selectedAccountName + " siap!", Toast.LENGTH_SHORT).show();
