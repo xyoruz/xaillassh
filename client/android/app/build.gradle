@@ -10,12 +10,17 @@ android {
         applicationId "com.sshovpn.app"
         minSdk 26
         targetSdk 34
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.3"
+    }
 
-        // Memastikan APK mendukung semua arsitektur (Universal)
-        ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+    // FITUR BARU: Memisahkan APK berdasarkan Arsitektur
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a'
+            universalApk false // Kita tidak butuh APK universal, cukup yang spesifik
         }
     }
 
@@ -23,15 +28,18 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // Opsional: Agar nama file APK jelas
+            // Kustomisasi nama file APK agar rapi saat diunduh
             applicationVariants.all { variant ->
-                variant.outputs.all {
-                    outputFileName = "XaillaXsh-${variant.versionName}-${variant.buildType.name}.apk"
+                variant.outputs.each { output ->
+                    def abi = output.getFilter(com.android.build.OutputFile.ABI)
+                    if (abi != null) {
+                        output.outputFileName = "XaillaXsh-${variant.versionName}-${abi}.apk"
+                    }
                 }
             }
         }
         debug {
-            // Pastikan APK debug juga memiliki konfigurasi bersih
+            // Kita gunakan debug signing agar bisa langsung diinstal tanpa setup keystore
             signingConfig signingConfigs.debug
         }
     }

@@ -2,7 +2,9 @@ name: Build SSH OVPN APK
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -18,18 +20,21 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: gradle
 
     - name: Set up Gradle 8.4
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v3
       with:
-        gradle-version: '8.4'
+        gradle-version: 8.4
 
-    - name: Build Debug APK
-      working-directory: ./client/android
-      run: gradle assembleDebug --stacktrace
+    - name: Build APK per Architecture
+      run: |
+        cd client/android
+        chmod +x gradlew
+        ./gradlew assembleDebug
 
-    - name: Upload APK
+    - name: Upload APK Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ssh-ovpn-apk
+        name: XaillaXsh-APK-Splits
         path: client/android/app/build/outputs/apk/debug/*.apk
